@@ -1,0 +1,37 @@
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @connectors/inventory.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @connectors/customer_connector.json
+
+curl -X DELETE localhost:8083/connectors/customers-connector
+
+curl localhost:8083/connectors/
+
+
+confluent local consume mddarr.inventory.customer -- --value-format avro --from-beginning --property print.key=true
+
+INSERT INTO customers (id, first_name, last_name, email) VALUES(1006, 'Howard', 'Carlson', 'hcaralson@gmail.com');
+
+# I got the data from the customer table into the kafka topic w/ Connect
+confluent local consume md3.inventory.customer -- --value-format avro --from-beginning --property print.key=true
+
+# List the topics
+kafka-topics --list --zookeeper localhost:2181
+
+
+    "transforms": "InsertKey, ExtractId, CastLong, SetValueSchema",
+    "transforms.InsertKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
+    "transforms.InsertKey.fields": "id",
+    "transforms.ExtractId.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
+    "transforms.ExtractId.field": "id",
+    "transforms.CastLong.type": "org.apache.kafka.connect.transforms.Cast$Key",
+    "transforms.CastLong.spec": "int64",
+    "transforms.SetValueSchema.type": "org.apache.kafka.connect.transforms.SetSchemaMetadata$Value",
+    "transforms.SetValueSchema.schema.name": "io.confluent.examples.streams.avro.microservices.Customer",
+    "transforms.SetValueSchema.schema.version": "4",
+
+
+    "transforms":"route",
+
+    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+    "transforms.route.replacement": "$3",
+    "schema.whitelist": "inventory"
