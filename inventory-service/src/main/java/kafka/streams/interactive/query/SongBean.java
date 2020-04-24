@@ -10,40 +10,30 @@ public class SongBean {
 	private String artist;
 	private String album;
 	private String name;
-
 	public SongBean() {}
-
 	public SongBean(final String artist, final String album, final String name) {
-
 		this.artist = artist;
 		this.album = album;
 		this.name = name;
 	}
-
 	public String getArtist() {
 		return artist;
 	}
-
 	public void setArtist(final String artist) {
 		this.artist = artist;
 	}
-
 	public String getAlbum() {
 		return album;
 	}
-
 	public void setAlbum(final String album) {
 		this.album = album;
 	}
-
 	public String getName() {
 		return name;
 	}
-
 	public void setName(final String name) {
 		this.name = name;
 	}
-
 
 	@Override
 	public String toString() {
@@ -53,7 +43,6 @@ public class SongBean {
 				", name='" + name + '\'' +
 				'}';
 	}
-
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) {

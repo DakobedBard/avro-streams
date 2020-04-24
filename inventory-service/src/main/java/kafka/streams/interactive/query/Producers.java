@@ -74,17 +74,17 @@ public class Producers {
 
 		DefaultKafkaProducerFactory<Long, Product> pf1 = new DefaultKafkaProducerFactory<>(props1);
 		KafkaTemplate<Long, Product> template1 = new KafkaTemplate<>(pf1, true);
-		template1.setDefaultTopic(KafkaStreamsInteractiveQuerySample.SONG_FEED);
+		template1.setDefaultTopic(InventoryServiceInteractiveQueries.SONG_FEED);
 
         products.forEach(product -> {
 			System.out.println("Writing song information for '" + product.getName() + "' to input topic " +
-					KafkaStreamsInteractiveQuerySample.SONG_FEED);
+					InventoryServiceInteractiveQueries.SONG_FEED);
 			template1.sendDefault(product.getProductId(), product);
 		});
 
 		DefaultKafkaProducerFactory<String, PurchaseEvent> pf = new DefaultKafkaProducerFactory<>(props);
 		KafkaTemplate<String, PurchaseEvent> template = new KafkaTemplate<>(pf, true);
-		template.setDefaultTopic(KafkaStreamsInteractiveQuerySample.PLAY_EVENTS);
+		template.setDefaultTopic(InventoryServiceInteractiveQueries.PLAY_EVENTS);
 
 		final long purchase_quantity = 3;
 		final Random random = new Random();
@@ -92,8 +92,8 @@ public class Producers {
 		// send a play event every 100 milliseconds
 		while (true) {
 			final Product product = products.get(random.nextInt(products.size()));
-			System.out.println("Writing play event for song " + product.getName() + " to input topic " +
-					KafkaStreamsInteractiveQuerySample.PLAY_EVENTS);
+			System.out.println("Writing purchase event for product " + product.getName() + " to input topic " +
+					InventoryServiceInteractiveQueries.PLAY_EVENTS);
 			template.sendDefault("uk", new PurchaseEvent(1L, product.getProductId(), purchase_quantity));
 
 			Thread.sleep(100L);
