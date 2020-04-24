@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 @Service
 public class InventoryService {
 
-    public static final String PLAY_EVENTS = "play-events";
+    public static final String PURCHASE_EVENTS = "purchase-events";
     public static final String SONG_FEED = "song-feed";
     public static final String TOP_FIVE_KEY = "all";
     public static final String TOP_FIVE_SONGS_STORE = "top-five-songs";
