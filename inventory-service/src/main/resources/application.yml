@@ -1,3 +1,5 @@
+server:
+  port: 8006
 spring.cloud.stream.bindings.process-in-0:
   destination: play-events
 spring.cloud.stream.bindings.process-in-1:

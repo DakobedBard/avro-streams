@@ -158,82 +158,82 @@ public class InventoryServiceInteractiveQueries {
 		}
 	}
 //
-	@RestController
-	public class FooController {
-
-		private final Log logger = LogFactory.getLog(getClass());
-
-		@RequestMapping("/song/idx")
-		public ProductBean product(@RequestParam(value="id") Long id) {
-			final ReadOnlyKeyValueStore<Long, Product> productStore =
-					interactiveQueryService.getQueryableStore(InventoryServiceInteractiveQueries.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
-
-			final Product product = productStore.get(id);
-			if (product == null) {
-				throw new IllegalArgumentException("hi");
-			}
-			return new ProductBean(product.getBrand(), product.getName()) ;
-		}
-
-		@RequestMapping("/charts/top-five")
-		@SuppressWarnings("unchecked")
-		public List<ProductPurchaseCountBean> topFive(@RequestParam(value="genre") String genre) {
-
-			HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryServiceInteractiveQueries.TOP_FIVE_SONGS_STORE,
-					InventoryServiceInteractiveQueries.TOP_FIVE_KEY, new StringSerializer());
-
-			if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
-				logger.info("Top Five songs request served from same host: " + hostInfo);
-				return topFiveSongs(InventoryServiceInteractiveQueries.TOP_FIVE_KEY, InventoryServiceInteractiveQueries.TOP_FIVE_SONGS_STORE);
-			}
-			else {
-				//find the store from the proper instance.
-				logger.info("Top Five songs request served from different host: " + hostInfo);
-				RestTemplate restTemplate = new RestTemplate();
-				return restTemplate.postForObject(
-						String.format("http://%s:%d/%s", hostInfo.host(),
-								hostInfo.port(), "charts/top-five?genre=Punk"), "punk", List.class);
-			}
-		}
-
-		private List<ProductPurchaseCountBean> topFiveSongs(final String key, final String storeName) {
-			final ReadOnlyKeyValueStore<String, TopFiveProducts> topFiveStore =
-					interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.<String, TopFiveProducts>keyValueStore());
-
-			// Get the value from the store
-			final TopFiveProducts value = topFiveStore.get(key);
-			if (value == null) {
-				throw new IllegalArgumentException(String.format("Unable to find value in %s for key %s", storeName, key));
-			}
-			final List<ProductPurchaseCountBean> results = new ArrayList<>();
-			value.forEach(productPurchaseCount -> {
-
-				HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryServiceInteractiveQueries.ALL_SONGS,
-						productPurchaseCount.getProductId(), new LongSerializer());
-
-				if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
-					logger.info("Song info request served from same host: " + hostInfo);
-
-					final ReadOnlyKeyValueStore<Long, Product> productStore =
-							interactiveQueryService.getQueryableStore(InventoryServiceInteractiveQueries.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
-
-					final Product product = productStore.get(productPurchaseCount.getProductId());
-					results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(), productPurchaseCount.getCount()));
-				}
-				else {
-					logger.info("Song info request served from different host: " + hostInfo);
-					RestTemplate restTemplate = new RestTemplate();
-					ProductBean product = restTemplate.postForObject(
-							String.format("http://%s:%d/%s", hostInfo.host(),
-									hostInfo.port(), "song/idx?id=" + productPurchaseCount.getProductId()),  "id", ProductBean.class);
-					results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(),productPurchaseCount.getCount()));
-				}
-
-
-			});
-			return results;
-		}
-	}
+//	@RestController
+//	public class FooController {
+//
+//		private final Log logger = LogFactory.getLog(getClass());
+//
+//		@RequestMapping("/product/idx")
+//		public ProductBean product(@RequestParam(value="id") Long id) {
+//			final ReadOnlyKeyValueStore<Long, Product> productStore =
+//					interactiveQueryService.getQueryableStore(InventoryServiceInteractiveQueries.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
+//
+//			final Product product = productStore.get(id);
+//			if (product == null) {
+//				throw new IllegalArgumentException("hi");
+//			}
+//			return new ProductBean(product.getBrand(), product.getName()) ;
+//		}
+//
+//		@RequestMapping("/charts/top-five")
+//		@SuppressWarnings("unchecked")
+//		public List<ProductPurchaseCountBean> topFive(@RequestParam(value="genre") String genre) {
+//
+//			HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryServiceInteractiveQueries.TOP_FIVE_SONGS_STORE,
+//					InventoryServiceInteractiveQueries.TOP_FIVE_KEY, new StringSerializer());
+//
+//			if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
+//				logger.info("Top Five songs request served from same host: " + hostInfo);
+//				return topFiveSongs(InventoryServiceInteractiveQueries.TOP_FIVE_KEY, InventoryServiceInteractiveQueries.TOP_FIVE_SONGS_STORE);
+//			}
+//			else {
+//				//find the store from the proper instance.
+//				logger.info("Top Five songs request served from different host: " + hostInfo);
+//				RestTemplate restTemplate = new RestTemplate();
+//				return restTemplate.postForObject(
+//						String.format("http://%s:%d/%s", hostInfo.host(),
+//								hostInfo.port(), "charts/top-five?genre=Punk"), "punk", List.class);
+//			}
+//		}
+//
+//		private List<ProductPurchaseCountBean> topFiveSongs(final String key, final String storeName) {
+//			final ReadOnlyKeyValueStore<String, TopFiveProducts> topFiveStore =
+//					interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.<String, TopFiveProducts>keyValueStore());
+//
+//			// Get the value from the store
+//			final TopFiveProducts value = topFiveStore.get(key);
+//			if (value == null) {
+//				throw new IllegalArgumentException(String.format("Unable to find value in %s for key %s", storeName, key));
+//			}
+//			final List<ProductPurchaseCountBean> results = new ArrayList<>();
+//			value.forEach(productPurchaseCount -> {
+//
+//				HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryServiceInteractiveQueries.ALL_SONGS,
+//						productPurchaseCount.getProductId(), new LongSerializer());
+//
+//				if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
+//					logger.info("Song info request served from same host: " + hostInfo);
+//
+//					final ReadOnlyKeyValueStore<Long, Product> productStore =
+//							interactiveQueryService.getQueryableStore(InventoryServiceInteractiveQueries.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
+//
+//					final Product product = productStore.get(productPurchaseCount.getProductId());
+//					results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(), productPurchaseCount.getCount()));
+//				}
+//				else {
+//					logger.info("Song info request served from different host: " + hostInfo);
+//					RestTemplate restTemplate = new RestTemplate();
+//					ProductBean product = restTemplate.postForObject(
+//							String.format("http://%s:%d/%s", hostInfo.host(),
+//									hostInfo.port(), "song/idx?id=" + productPurchaseCount.getProductId()),  "id", ProductBean.class);
+//					results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(),productPurchaseCount.getCount()));
+//				}
+//
+//
+//			});
+//			return results;
+//		}
+//	}
 //
 	/**
 	 * Serde for TopFiveSongs
@@ -297,7 +297,7 @@ public class InventoryServiceInteractiveQueries {
 //	/**
 //	 * Used in aggregations to keep track of the Top five songs
 //	 */
-	static class TopFiveProducts implements Iterable<PurchaseCount> {
+	public static class TopFiveProducts implements Iterable<PurchaseCount> {
 		private final Map<Long, PurchaseCount> currentSongs = new HashMap<>();
 		private final TreeSet<PurchaseCount> topFive = new TreeSet<>((o1, o2) -> {
 			final int result = o2.getCount().compareTo(o1.getCount());
