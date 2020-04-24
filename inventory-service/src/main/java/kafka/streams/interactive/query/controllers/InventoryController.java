@@ -3,6 +3,7 @@ package kafka.streams.interactive.query.controllers;
 import kafka.streams.interactive.query.InventoryServiceInteractiveQueries;
 import kafka.streams.interactive.query.ProductBean;
 import kafka.streams.interactive.query.ProductPurchaseCountBean;
+import kafka.streams.interactive.query.services.InventoryService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.kafka.common.serialization.LongSerializer;
@@ -69,11 +70,11 @@ public class InventoryController {
     }
 
     private List<ProductPurchaseCountBean> topFiveSongs(final String key, final String storeName) {
-        final ReadOnlyKeyValueStore<String, InventoryServiceInteractiveQueries.TopFiveProducts> topFiveStore =
-                interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.<String, InventoryServiceInteractiveQueries.TopFiveProducts>keyValueStore());
+        final ReadOnlyKeyValueStore<String, InventoryService.TopFiveProducts> topFiveStore =
+                interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.<String, InventoryService.TopFiveProducts>keyValueStore());
 
         // Get the value from the store
-        final InventoryServiceInteractiveQueries.TopFiveProducts value = topFiveStore.get(key);
+        final InventoryService.TopFiveProducts value = topFiveStore.get(key);
         if (value == null) {
             throw new IllegalArgumentException(String.format("Unable to find value in %s for key %s", storeName, key));
         }
