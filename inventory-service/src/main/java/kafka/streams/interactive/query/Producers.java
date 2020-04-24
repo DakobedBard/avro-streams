@@ -19,6 +19,7 @@ package kafka.streams.interactive.query;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 //import kafka.streams.interactive.query.avro.PlayEvent;
+import kafka.streams.interactive.query.services.InventoryService;
 import org.mddarr.inventory.Product;
 import org.mddarr.inventory.PurchaseEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -74,17 +75,17 @@ public class Producers {
 
 		DefaultKafkaProducerFactory<Long, Product> pf1 = new DefaultKafkaProducerFactory<>(props1);
 		KafkaTemplate<Long, Product> template1 = new KafkaTemplate<>(pf1, true);
-		template1.setDefaultTopic(InventoryServiceInteractiveQueries.SONG_FEED);
+		template1.setDefaultTopic(InventoryService.SONG_FEED);
 
         products.forEach(product -> {
 			System.out.println("Writing song information for '" + product.getName() + "' to input topic " +
-					InventoryServiceInteractiveQueries.SONG_FEED);
+					InventoryService.SONG_FEED);
 			template1.sendDefault(product.getProductId(), product);
 		});
 
 		DefaultKafkaProducerFactory<String, PurchaseEvent> pf = new DefaultKafkaProducerFactory<>(props);
 		KafkaTemplate<String, PurchaseEvent> template = new KafkaTemplate<>(pf, true);
-		template.setDefaultTopic(InventoryServiceInteractiveQueries.PLAY_EVENTS);
+		template.setDefaultTopic(InventoryService.PLAY_EVENTS);
 
 		final long purchase_quantity = 3;
 		final Random random = new Random();
@@ -93,7 +94,7 @@ public class Producers {
 		while (true) {
 			final Product product = products.get(random.nextInt(products.size()));
 			System.out.println("Writing purchase event for product " + product.getName() + " to input topic " +
-					InventoryServiceInteractiveQueries.PLAY_EVENTS);
+					InventoryService.PLAY_EVENTS);
 			template.sendDefault("uk", new PurchaseEvent(1L, product.getProductId(), purchase_quantity));
 
 			Thread.sleep(100L);

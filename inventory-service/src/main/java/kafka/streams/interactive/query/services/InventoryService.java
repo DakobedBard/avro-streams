@@ -22,11 +22,18 @@ import java.util.function.BiConsumer;
 
 @Service
 public class InventoryService {
+
+    public static final String PLAY_EVENTS = "play-events";
+    public static final String SONG_FEED = "song-feed";
+    public static final String TOP_FIVE_KEY = "all";
+    public static final String TOP_FIVE_SONGS_STORE = "top-five-songs";
+    public static final String ALL_SONGS = "all-songs";
+
     private static final Long MIN_CHARTABLE_DURATION = 30 * 1000L;
     private static final String SONG_PLAY_COUNT_STORE = "song-play-count";
 
     static final String TOP_FIVE_SONGS_BY_GENRE_STORE = "top-five-songs-by-genre";
-    static final String TOP_FIVE_KEY = "all";
+
     //
     @Bean
     public BiConsumer<KStream<String, PurchaseEvent>, KTable<Long, Product>> process() {
@@ -62,7 +69,7 @@ public class InventoryService {
 
             // create a state store to track song play counts
             final KTable<Product, Long> productPurchaseCounts = songPlays.groupBy((songId, song) -> song,
-                    Serialized.with(keySongSerde, valueSongSerde))
+                    Grouped.with(keySongSerde, valueSongSerde))
                     .count(Materialized.<Product, Long, KeyValueStore<Bytes, byte[]>>as(SONG_PLAY_COUNT_STORE)
                             .withKeySerde(valueSongSerde)
                             .withValueSerde(Serdes.Long()));

@@ -25,11 +25,7 @@ import java.util.List;
 
 @RestController
 public class InventoryController {
-    static final String PLAY_EVENTS = "play-events";
-    static final String SONG_FEED = "song-feed";
-    static final String TOP_FIVE_KEY = "all";
-    static final String TOP_FIVE_SONGS_STORE = "top-five-songs";
-    static final String ALL_SONGS = "all-songs";
+
 
     @Autowired
     private InteractiveQueryService interactiveQueryService;
@@ -39,7 +35,7 @@ public class InventoryController {
     @RequestMapping("/product/idx")
     public ProductBean product(@RequestParam(value="id") Long id) {
         final ReadOnlyKeyValueStore<Long, Product> productStore =
-                interactiveQueryService.getQueryableStore(ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
+                interactiveQueryService.getQueryableStore(InventoryService.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
 
         final Product product = productStore.get(id);
         if (product == null) {
@@ -52,12 +48,12 @@ public class InventoryController {
     @SuppressWarnings("unchecked")
     public List<ProductPurchaseCountBean> topFive(@RequestParam(value="genre") String genre) {
 
-        HostInfo hostInfo = interactiveQueryService.getHostInfo(TOP_FIVE_SONGS_STORE,
-                TOP_FIVE_KEY, new StringSerializer());
+        HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryService.TOP_FIVE_SONGS_STORE,
+                InventoryService.TOP_FIVE_KEY, new StringSerializer());
 
         if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
             logger.info("Top Five songs request served from same host: " + hostInfo);
-            return topFiveSongs(TOP_FIVE_KEY, TOP_FIVE_SONGS_STORE);
+            return topFiveSongs(InventoryService.TOP_FIVE_KEY, InventoryService.TOP_FIVE_SONGS_STORE);
         }
         else {
             //find the store from the proper instance.
@@ -81,14 +77,14 @@ public class InventoryController {
         final List<ProductPurchaseCountBean> results = new ArrayList<>();
         value.forEach(productPurchaseCount -> {
 
-            HostInfo hostInfo = interactiveQueryService.getHostInfo(ALL_SONGS,
+            HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryService.ALL_SONGS,
                     productPurchaseCount.getProductId(), new LongSerializer());
 
             if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
                 logger.info("Song info request served from same host: " + hostInfo);
 
                 final ReadOnlyKeyValueStore<Long, Product> productStore =
-                        interactiveQueryService.getQueryableStore(ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
+                        interactiveQueryService.getQueryableStore(InventoryService.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
 
                 final Product product = productStore.get(productPurchaseCount.getProductId());
                 results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(), productPurchaseCount.getCount()));
@@ -101,8 +97,6 @@ public class InventoryController {
                                 hostInfo.port(), "song/idx?id=" + productPurchaseCount.getProductId()),  "id", ProductBean.class);
                 results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(),productPurchaseCount.getCount()));
             }
-
-
         });
         return results;
     }

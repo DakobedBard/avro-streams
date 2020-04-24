@@ -1,7 +1,7 @@
 server:
   port: 8006
 spring.cloud.stream.bindings.process-in-0:
-  destination: play-events
+  destination: purchase-events
 spring.cloud.stream.bindings.process-in-1:
   destination: song-feed
 spring.cloud.stream.kafka.streams.bindings.process-in-0:
