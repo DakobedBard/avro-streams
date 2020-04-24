@@ -20,9 +20,7 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.*;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.*;
@@ -41,7 +39,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -112,47 +112,47 @@ public class InventoryServiceInteractiveQueries {
 				// Compute the top five charts for each genre. The results of this computation will continuously update the state
 				// store "top-five-songs-by-genre", and this state store can then be queried interactively via a REST API (cf.
 				// MusicPlaysRestService) for the latest charts per genre.
-				songPlayCounts.groupBy((song, plays) ->
-								KeyValue.pair(song.getGenre().toLowerCase(),
-										new SongPlayCount(song.getId(), plays)),
-						Serialized.with(Serdes.String(), songPlayCountSerde))
-						// aggregate into a TopFiveSongs instance that will keep track
-						// of the current top five for each genre. The data will be available in the
-						// top-five-songs-genre store
-						.aggregate(TopFiveSongs::new,
-								(aggKey, value, aggregate) -> {
-									aggregate.add(value);
-									return aggregate;
-								},
-								(aggKey, value, aggregate) -> {
-									aggregate.remove(value);
-									return aggregate;
-								},
-								Materialized.<String, TopFiveSongs, KeyValueStore<Bytes, byte[]>>as(TOP_FIVE_SONGS_BY_GENRE_STORE)
-										.withKeySerde(Serdes.String())
-										.withValueSerde(topFiveSerde)
-						);
-
-				// Compute the top five chart. The results of this computation will continuously update the state
-				// store "top-five-songs", and this state store can then be queried interactively via a REST API (cf.
-				// MusicPlaysRestService) for the latest charts per genre.
-				songPlayCounts.groupBy((song, plays) ->
-								KeyValue.pair(TOP_FIVE_KEY,
-										new SongPlayCount(song.getId(), plays)),
-						Serialized.with(Serdes.String(), songPlayCountSerde))
-						.aggregate(TopFiveSongs::new,
-								(aggKey, value, aggregate) -> {
-									aggregate.add(value);
-									return aggregate;
-								},
-								(aggKey, value, aggregate) -> {
-									aggregate.remove(value);
-									return aggregate;
-								},
-								Materialized.<String, TopFiveSongs, KeyValueStore<Bytes, byte[]>>as(TOP_FIVE_SONGS_STORE)
-										.withKeySerde(Serdes.String())
-										.withValueSerde(topFiveSerde)
-						);
+//				productPurchaseCounts.groupBy((product, purchase_count) ->
+//								KeyValue.pair(product.getBrand().toLowerCase(),
+//										new PurchaseCount(product.getProductId(), purchase_count)),
+//						Serialized.with(Serdes.String(), songPlayCountSerde))
+//						// aggregate into a TopFiveSongs instance that will keep track
+//						// of the current top five for each genre. The data will be available in the
+//						// top-five-songs-genre store
+//						.aggregate(TopFiveProducts::new,
+//								(aggKey, value, aggregate) -> {
+//									aggregate.add(value);
+//									return aggregate;
+//								},
+//								(aggKey, value, aggregate) -> {
+//									aggregate.remove(value);
+//									return aggregate;
+//								},
+//								Materialized.<String, TopFiveSongs, KeyValueStore<Bytes, byte[]>>as(TOP_FIVE_SONGS_BY_GENRE_STORE)
+//										.withKeySerde(Serdes.String())
+//										.withValueSerde(topFiveSerde)
+//						);
+//
+//				// Compute the top five chart. The results of this computation will continuously update the state
+//				// store "top-five-songs", and this state store can then be queried interactively via a REST API (cf.
+//				// MusicPlaysRestService) for the latest charts per genre.
+//				productPurchaseCounts.groupBy((product, purchase_count) ->
+//								KeyValue.pair(TOP_FIVE_KEY,
+//										new PurchaseCount(product.getProductId(), purchase_count)),
+//						Serialized.with(Serdes.String(), songPlayCountSerde))
+//						.aggregate(TopFiveProducts::new,
+//								(aggKey, value, aggregate) -> {
+//									aggregate.add(value);
+//									return aggregate;
+//								},
+//								(aggKey, value, aggregate) -> {
+//									aggregate.remove(value);
+//									return aggregate;
+//								},
+//								Materialized.<String, TopFiveSongs, KeyValueStore<Bytes, byte[]>>as(TOP_FIVE_SONGS_STORE)
+//										.withKeySerde(Serdes.String())
+//										.withValueSerde(topFiveSerde)
+//						);
 			};
 
 		}
@@ -177,14 +177,14 @@ public class InventoryServiceInteractiveQueries {
 
 		@RequestMapping("/charts/top-five")
 		@SuppressWarnings("unchecked")
-		public List<SongPlayCountBean> topFive(@RequestParam(value="genre") String genre) {
+		public List<ProductPurchaseCountBean> topFive(@RequestParam(value="genre") String genre) {
 
-			HostInfo hostInfo = interactiveQueryService.getHostInfo(KafkaStreamsInteractiveQuerySample.TOP_FIVE_SONGS_STORE,
-					KafkaStreamsInteractiveQuerySample.TOP_FIVE_KEY, new StringSerializer());
+			HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryServiceInteractiveQueries.TOP_FIVE_SONGS_STORE,
+					InventoryServiceInteractiveQueries.TOP_FIVE_KEY, new StringSerializer());
 
 			if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
 				logger.info("Top Five songs request served from same host: " + hostInfo);
-				return topFiveSongs(KafkaStreamsInteractiveQuerySample.TOP_FIVE_KEY, KafkaStreamsInteractiveQuerySample.TOP_FIVE_SONGS_STORE);
+				return topFiveSongs(InventoryServiceInteractiveQueries.TOP_FIVE_KEY, InventoryServiceInteractiveQueries.TOP_FIVE_SONGS_STORE);
 			}
 			else {
 				//find the store from the proper instance.
@@ -196,40 +196,37 @@ public class InventoryServiceInteractiveQueries {
 			}
 		}
 
-		private List<SongPlayCountBean> topFiveSongs(final String key,
-													 final String storeName) {
-			final ReadOnlyKeyValueStore<String, TopFiveSongs> topFiveStore =
-					interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.<String, TopFiveSongs>keyValueStore());
+		private List<ProductPurchaseCountBean> topFiveSongs(final String key, final String storeName) {
+			final ReadOnlyKeyValueStore<String, TopFiveProducts> topFiveStore =
+					interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.<String, TopFiveProducts>keyValueStore());
 
 			// Get the value from the store
-			final TopFiveSongs value = topFiveStore.get(key);
+			final TopFiveProducts value = topFiveStore.get(key);
 			if (value == null) {
 				throw new IllegalArgumentException(String.format("Unable to find value in %s for key %s", storeName, key));
 			}
-			final List<SongPlayCountBean> results = new ArrayList<>();
-			value.forEach(songPlayCount -> {
+			final List<ProductPurchaseCountBean> results = new ArrayList<>();
+			value.forEach(productPurchaseCount -> {
 
-				HostInfo hostInfo = interactiveQueryService.getHostInfo(KafkaStreamsInteractiveQuerySample.ALL_SONGS,
-						songPlayCount.getSongId(), new LongSerializer());
+				HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryServiceInteractiveQueries.ALL_SONGS,
+						productPurchaseCount.getProductId(), new LongSerializer());
 
 				if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
 					logger.info("Song info request served from same host: " + hostInfo);
 
-					final ReadOnlyKeyValueStore<Long, Song> songStore =
-							interactiveQueryService.getQueryableStore(KafkaStreamsInteractiveQuerySample.ALL_SONGS, QueryableStoreTypes.<Long, Song>keyValueStore());
+					final ReadOnlyKeyValueStore<Long, Product> productStore =
+							interactiveQueryService.getQueryableStore(InventoryServiceInteractiveQueries.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
 
-					final Song song = songStore.get(songPlayCount.getSongId());
-					results.add(new SongPlayCountBean(song.getArtist(),song.getAlbum(), song.getName(),
-							songPlayCount.getPlays()));
+					final Product product = productStore.get(productPurchaseCount.getProductId());
+					results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(), productPurchaseCount.getCount()));
 				}
 				else {
 					logger.info("Song info request served from different host: " + hostInfo);
 					RestTemplate restTemplate = new RestTemplate();
-					SongBean song = restTemplate.postForObject(
+					ProductBean product = restTemplate.postForObject(
 							String.format("http://%s:%d/%s", hostInfo.host(),
-									hostInfo.port(), "song/idx?id=" + songPlayCount.getSongId()),  "id", SongBean.class);
-					results.add(new SongPlayCountBean(song.getArtist(),song.getAlbum(), song.getName(),
-							songPlayCount.getPlays()));
+									hostInfo.port(), "song/idx?id=" + productPurchaseCount.getProductId()),  "id", ProductBean.class);
+					results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(),productPurchaseCount.getCount()));
 				}
 
 
@@ -246,22 +243,21 @@ public class InventoryServiceInteractiveQueries {
 		@Override
 		public Serializer<TopFiveProducts> serializer() {
 
-			return new Serializer<TopFiveSongs>() {
+			return new Serializer<TopFiveProducts>() {
 				@Override
 				public void configure(final Map<String, ?> map, final boolean b) {
 				}
-
 				@Override
-				public byte[] serialize(final String s, final TopFiveSongs topFiveSongs) {
+				public byte[] serialize(final String s, final TopFiveProducts topFiveProducts) {
 
 					final ByteArrayOutputStream out = new ByteArrayOutputStream();
 					final DataOutputStream
 							dataOutputStream =
 							new DataOutputStream(out);
 					try {
-						for (SongPlayCount songPlayCount : topFiveSongs) {
-							dataOutputStream.writeLong(songPlayCount.getSongId());
-							dataOutputStream.writeLong(songPlayCount.getPlays());
+						for (PurchaseCount purchaseCount : topFiveProducts) {
+							dataOutputStream.writeLong(purchaseCount.getProductId());
+							dataOutputStream.writeLong(purchaseCount.getCount());
 						}
 						dataOutputStream.flush();
 					} catch (IOException e) {
@@ -273,13 +269,13 @@ public class InventoryServiceInteractiveQueries {
 		}
 
 		@Override
-		public Deserializer<TopFiveSongs> deserializer() {
+		public Deserializer<TopFiveProducts> deserializer() {
 
 			return (s, bytes) -> {
 				if (bytes == null || bytes.length == 0) {
 					return null;
 				}
-				final TopFiveSongs result = new TopFiveSongs();
+				final TopFiveProducts result = new TopFiveProducts();
 
 				final DataInputStream
 						dataInputStream =
@@ -287,7 +283,7 @@ public class InventoryServiceInteractiveQueries {
 
 				try {
 					while(dataInputStream.available() > 0) {
-						result.add(new SongPlayCount(dataInputStream.readLong(),
+						result.add(new PurchaseCount(dataInputStream.readLong(),
 								dataInputStream.readLong()));
 					}
 				} catch (IOException e) {
