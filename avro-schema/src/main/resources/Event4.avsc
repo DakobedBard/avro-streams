@@ -1,0 +1,12 @@
+{
+  "type" : "record",
+  "name" : "Event4",
+  "namespace" : "org.mddarr.orders.event.dto",
+  "fields" : [ {
+    "name" : "id",
+    "type" : [ "null", "string" ]
+  }, {
+    "name" : "timestamp",
+    "type" : "long"
+  } ]
+}

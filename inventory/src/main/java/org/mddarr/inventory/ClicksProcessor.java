@@ -1,6 +1,8 @@
 package org.mddarr.inventory;
 
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -8,6 +10,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Arrays;
@@ -26,8 +29,13 @@ public class ClicksProcessor {
 
     @Bean
     @SuppressWarnings("unchecked")
-    public Function<KStream<Bytes, String>, KStream<Bytes, WordCount>> inventoryprocess() {
-        return input -> input.flatMapValues(value -> Arrays.asList(value.toLowerCase().split("\\W+")))
+    public Function<KStream<Bytes, String>, KStream<Bytes, WordCount>> inventoryprocess() throws IOException {
+        final InputStream pageViewRegionSchema = ClicksProcessor.class.getClassLoader()
+                .getResourceAsStream("avro/views.avsc");
+        // Working w/ intermediate schemas we consult the avro schema..
+        final Schema schema = new Schema.Parser().parse(pageViewRegionSchema);
+
+        return change -> change.flatMapValues(value -> Arrays.asList(value.toLowerCase().split("\\W+")))
                 .map((key, value) -> new KeyValue<>(value, value))
                 .groupByKey(Grouped.with(Serdes.String(), Serdes.String()))
                 .windowedBy(TimeWindows.of(Duration.ofMillis(WINDOW_SIZE_MS)))
@@ -37,20 +45,31 @@ public class ClicksProcessor {
     }
 //
 //    @Bean
-//    public BiFunction<KStream<String, Long>, KTable<String, String>, KStream<String, Long>> clickprocess() {
-//
+//    public BiFunction<KStream<String, Long>, KTable<String, String>, KStream<String, Long>> clickprocess() throws IOException {
+//        KStream<String, Long> views;
+//        KTable<String, String> regions;
 //        final InputStream pageViewRegionSchema = ClicksProcessor.class.getClassLoader()
 //                .getResourceAsStream("avro/views.avsc");
-//
-//
-//    }
+//        // Working w/ intermediate schemas we consult the avro schema..
 //        final Schema schema = new Schema.Parser().parse(pageViewRegionSchema);
-
+//
+//
+//
+//        KTable<Windowed<String>, Long> views
+//        final KTable<Windowed<String>, Long> viewsByRegion = viewsByUser
+//                .leftJoin(userRegions, (view, region) -> {
+//                    final GenericRecord viewRegion = new GenericData.Record(schema);
+//                    viewRegion.put("user", view.get("user"));
+//                    viewRegion.put("page", view.get("page"));
+//                    viewRegion.put("region", region);
+//                    return viewRegion;
+//                })
+//
 //        return (clicksStream, regionsTable) -> clicksStream
 //                .leftJoin(regionsTable, (view, region) -> {
 //
 //                })
-
+//    }
 
     private static final class RegionWithClicks {
         private final String region;

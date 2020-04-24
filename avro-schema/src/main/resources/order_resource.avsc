@@ -1,0 +1,11 @@
+{"namespace": "org.mddarr.orders.resources",
+ "type": "record",
+ "name": "OrderResource",
+ "fields": [
+     {"name": "id", "type": "string"},
+     {"name": "transactionDate", "type": ["int", "null"], "logicalType" : "date"},
+     {"name": "purchaser", "type": "long"},
+     {"name": "quantity", "type": "int"},
+     {"name":   "product_id", "type": "int"}
+ ]
+}
