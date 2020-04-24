@@ -24,10 +24,10 @@ import java.util.function.BiConsumer;
 public class InventoryService {
 
     public static final String PURCHASE_EVENTS = "purchase-events";
-    public static final String SONG_FEED = "song-feed";
+    public static final String PRODUCT_FEED = "product-feed";
     public static final String TOP_FIVE_KEY = "all";
     public static final String TOP_FIVE_SONGS_STORE = "top-five-songs";
-    public static final String ALL_SONGS = "all-songs";
+    public static final String ALL_PRODUCTS = "all-songs";
 
     private static final Long MIN_CHARTABLE_DURATION = 30 * 1000L;
     private static final String SONG_PLAY_COUNT_STORE = "song-play-count";

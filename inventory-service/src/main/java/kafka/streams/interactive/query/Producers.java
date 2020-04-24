@@ -75,11 +75,11 @@ public class Producers {
 
 		DefaultKafkaProducerFactory<Long, Product> pf1 = new DefaultKafkaProducerFactory<>(props1);
 		KafkaTemplate<Long, Product> template1 = new KafkaTemplate<>(pf1, true);
-		template1.setDefaultTopic(InventoryService.SONG_FEED);
+		template1.setDefaultTopic(InventoryService.PRODUCT_FEED);
 
         products.forEach(product -> {
 			System.out.println("Writing song information for '" + product.getName() + "' to input topic " +
-					InventoryService.SONG_FEED);
+					InventoryService.PRODUCT_FEED);
 			template1.sendDefault(product.getProductId(), product);
 		});
 

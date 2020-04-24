@@ -35,7 +35,7 @@ public class InventoryController {
     @RequestMapping("/product/idx")
     public ProductBean product(@RequestParam(value="id") Long id) {
         final ReadOnlyKeyValueStore<Long, Product> productStore =
-                interactiveQueryService.getQueryableStore(InventoryService.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
+                interactiveQueryService.getQueryableStore(InventoryService.ALL_PRODUCTS, QueryableStoreTypes.<Long, Product>keyValueStore());
 
         final Product product = productStore.get(id);
         if (product == null) {
@@ -77,14 +77,14 @@ public class InventoryController {
         final List<ProductPurchaseCountBean> results = new ArrayList<>();
         value.forEach(productPurchaseCount -> {
 
-            HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryService.ALL_SONGS,
+            HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryService.ALL_PRODUCTS,
                     productPurchaseCount.getProductId(), new LongSerializer());
 
             if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
                 logger.info("Song info request served from same host: " + hostInfo);
 
                 final ReadOnlyKeyValueStore<Long, Product> productStore =
-                        interactiveQueryService.getQueryableStore(InventoryService.ALL_SONGS, QueryableStoreTypes.<Long, Product>keyValueStore());
+                        interactiveQueryService.getQueryableStore(InventoryService.ALL_PRODUCTS, QueryableStoreTypes.<Long, Product>keyValueStore());
 
                 final Product product = productStore.get(productPurchaseCount.getProductId());
                 results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(), productPurchaseCount.getCount()));
