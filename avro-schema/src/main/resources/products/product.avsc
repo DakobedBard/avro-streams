@@ -1,0 +1,9 @@
+{"namespace": "org.mddarr.products",
+ "type": "record",
+ "name": "Product",
+ "fields": [
+     {"name": "id",     "type": "long"},
+     {"name": "name",   "type": "string"},
+     {"name": "genre",  "type": "string"}
+ ]
+}
