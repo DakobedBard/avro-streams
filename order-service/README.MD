@@ -1,0 +1,13 @@
+{"namespace": "org.mddarr.orders.records.dto" ,
+ "type": "record",
+ "name": "Customer",
+ "fields": [
+     {"name": "id", "type": "long"},
+     {"name": "firstName", "type": "string"},
+     {"name": "lastName", "type": "string"},
+     {"name": "email", "type": "string"},
+     {"name": "address", "type": "string"},
+    {"name": "transactionDate", "type": ["int", "null"], "logicalType" : "date"}
+ ]
+}
+
