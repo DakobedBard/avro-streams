@@ -17,8 +17,9 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
+        <module>order-service</module>
         <module>avro-schema</module>
-        <module>listener</module>
+<!--        <module>listener</module>-->
     </modules>
     <repositories>
         <repository>

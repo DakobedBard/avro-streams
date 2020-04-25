@@ -1,0 +1,10 @@
+{"namespace": "org.mddarr.products",
+ "name": "Parent",
+ "type":"record",
+ "fields":[
+      {"name": "id", "type": "string"},
+      {"name": "customerId", "type": "long"},
+      {"name":"productIDS","type":  {"type": "array","items": "long"}},
+      {"name":"quantity","type":  {"type": "array","items": "long"}}
+    ]
+}
