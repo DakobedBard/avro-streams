@@ -78,7 +78,7 @@ public class Producers {
 		template1.setDefaultTopic(InventoryService.PRODUCT_FEED);
 
         products.forEach(product -> {
-			System.out.println("Writing song information for '" + product.getName() + "' to input topic " +
+			System.out.println("Writing product information for '" + product.getName() + "' to input topic " +
 					InventoryService.PRODUCT_FEED);
 			template1.sendDefault(product.getProductId(), product);
 		});

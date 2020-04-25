@@ -27,9 +27,7 @@ public class InventoryService {
     public static final String PRODUCT_FEED = "product-feed";
     public static final String TOP_FIVE_KEY = "all";
     public static final String TOP_FIVE_SONGS_STORE = "top-five-songs";
-    public static final String ALL_PRODUCTS = "all-songs";
-
-    private static final Long MIN_CHARTABLE_DURATION = 30 * 1000L;
+    public static final String ALL_PRODUCTS = "all-products";
     private static final String SONG_PLAY_COUNT_STORE = "song-play-count";
 
     static final String TOP_FIVE_SONGS_BY_GENRE_STORE = "top-five-songs-by-genre";

@@ -10,7 +10,7 @@ spring.cloud.stream.kafka.streams.bindings.process-in-0:
 spring.cloud.stream.kafka.streams.bindings.process-in-1:
   consumer:
     valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
-    materializedAs: all-songs
+    materializedAs: all-products
 spring.cloud.stream.kafka.streams.binder:
   brokers: localhost
   configuration:
