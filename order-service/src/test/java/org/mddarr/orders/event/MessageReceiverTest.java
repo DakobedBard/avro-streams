@@ -1,13 +1,10 @@
 package org.mddarr.orders.event;
 
-import org.mddarr.orders.Constants;
 import org.mddarr.orders.UatAbstractTest;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
+import org.mddarr.orders.service.AvroConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 

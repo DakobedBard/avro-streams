@@ -1,7 +1,7 @@
 package org.mddarr.orders.mock;
 
 import org.mddarr.orders.Constants;
-import org.mddarr.products.Event1;
+import org.mddarr.orders.event.dto.Event1;
 
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;

@@ -1,4 +1,4 @@
-{"namespace": "org.mddarr.products",
+{"namespace": "org.mddarr.orders.event.dto",
  "name": "Order",
  "type":"record",
  "fields":[

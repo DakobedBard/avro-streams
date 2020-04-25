@@ -13,18 +13,7 @@ import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "org.mddarr.orders")
-
 public class OrdersServiceApplication {
-
-    @Value("${topic.name}")
-    private String topicName;
-
-    @Value("${topic.partitions-num}")
-    private Integer partitions;
-
-    @Value("${topic.replication-factor}")
-    private short replicationFactor;
-
 
     public static void main(String[] args) {
         SpringApplication.run(OrdersServiceApplication.class, args);
@@ -36,10 +25,10 @@ public class OrdersServiceApplication {
     public void postInit() {
         logger.info("Application ShowcaseApp started!");
     }
-
-    @Bean
-    NewTopic moviesTopic() {
-        return new NewTopic(topicName, partitions, replicationFactor);
-    }
+//
+//    @Bean
+//    NewTopic moviesTopic() {
+//        return new NewTopic(topicName, partitions, replicationFactor);
+//    }
 
 }

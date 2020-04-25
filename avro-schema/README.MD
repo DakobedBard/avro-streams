@@ -1,2 +1,10 @@
-INSERT INTO orders (id, order_date,purchaser,quantity, product_id) VALUES (10005,'2017-02-21',1001,3,102);
-INSERT INTO customers (id, first_name,last_name, email) VALUES (1008,'Chuck','Beer','chee@gmail.com');
+{"namespace": "org.mddarr.products",
+ "name": "Order",
+ "type":"record",
+ "fields":[
+      {"name": "id", "type": "string"},
+      {"name": "customerId", "type": "long"},
+      {"name":"productIDS","type": "string"},
+      {"name":"quantities","type":  "string"}
+    ]
+}
