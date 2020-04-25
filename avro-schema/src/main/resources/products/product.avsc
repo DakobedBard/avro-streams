@@ -1,4 +1,4 @@
-{"namespace": "org.mddarr.products",
+[{"namespace": "org.mddarr.products",
  "type": "record",
  "name": "Product",
  "fields": [
@@ -6,4 +6,4 @@
      {"name": "name",   "type": "string"},
      {"name": "genre",  "type": "string"}
  ]
-}
+}]

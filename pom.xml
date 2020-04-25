@@ -18,7 +18,9 @@
 
     <modules>
         <module>avro-schema</module>
-        <module>listener</module>
+        <module>inventory-service</module>
+        <module>order-service</module>
+<!--        <module>listener</module>-->
     </modules>
     <repositories>
         <repository>
