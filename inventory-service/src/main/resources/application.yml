@@ -3,14 +3,14 @@ server:
 spring.cloud.stream.bindings.process-in-0:
   destination: purchase-events
 spring.cloud.stream.bindings.process-in-1:
-  destination: song-feed
+  destination: product-feed
 spring.cloud.stream.kafka.streams.bindings.process-in-0:
   consumer:
     valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 spring.cloud.stream.kafka.streams.bindings.process-in-1:
   consumer:
     valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
-    materializedAs: all-songs
+    materializedAs: all-products
 spring.cloud.stream.kafka.streams.binder:
   brokers: localhost
   configuration:
