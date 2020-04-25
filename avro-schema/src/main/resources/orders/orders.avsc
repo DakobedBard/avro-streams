@@ -1,5 +1,5 @@
 {"namespace": "org.mddarr.products",
- "name": "Parent",
+ "name": "Order",
  "type":"record",
  "fields":[
       {"name": "id", "type": "string"},
