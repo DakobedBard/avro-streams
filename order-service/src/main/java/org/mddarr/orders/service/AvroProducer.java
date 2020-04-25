@@ -23,8 +23,7 @@ public class AvroProducer {
         logger.info("Send event 1 {}", event1);
         kafkaTemplateEvent1.send(Constants.EVENT_1_TOPIC, event1);
     }
-
-
+    
     public void sendOrder(Order order) {
         logger.info("Send event 1 {}", order);
         kafkaTemplateOrder.send("orders", order);
