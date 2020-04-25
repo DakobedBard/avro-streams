@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kafka.streams.interactive.query;
+package kafka.streams.interactive.query.producers;
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
@@ -30,16 +30,17 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.*;
 
-public class Producers {
+public class PurchaseEventProducer {
 
 	public static void main(String... args) throws Exception {
 
 		final Map<String, String> serdeConfig = Collections.singletonMap(
 				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
-		final SpecificAvroSerializer<PurchaseEvent> playEventSerializer = new SpecificAvroSerializer<>();
-		playEventSerializer.configure(serdeConfig, false);
-		final SpecificAvroSerializer<Product> songSerializer = new SpecificAvroSerializer<>();
-		songSerializer.configure(serdeConfig, false);
+		// Set serializers and
+		final SpecificAvroSerializer<PurchaseEvent> purchaseEventSerializer = new SpecificAvroSerializer<>();
+		purchaseEventSerializer.configure(serdeConfig, false);
+		final SpecificAvroSerializer<Product> productSerializer = new SpecificAvroSerializer<>();
+		productSerializer.configure(serdeConfig, false);
 
 		final List<Product> products = Arrays.asList(new Product(1L,
 						"Fresh Fruit For Rotting Vegetables",
@@ -67,11 +68,11 @@ public class Producers {
 		props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
 		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, playEventSerializer.getClass());
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, purchaseEventSerializer.getClass());
 
 		Map<String, Object> props1 = new HashMap<>(props);
 		props1.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-		props1.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, songSerializer.getClass());
+		props1.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, productSerializer.getClass());
 
 		DefaultKafkaProducerFactory<Long, Product> pf1 = new DefaultKafkaProducerFactory<>(props1);
 		KafkaTemplate<Long, Product> template1 = new KafkaTemplate<>(pf1, true);
@@ -100,5 +101,4 @@ public class Producers {
 			Thread.sleep(100L);
 		}
 	}
-
 }

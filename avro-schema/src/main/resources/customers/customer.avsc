@@ -7,7 +7,7 @@
      {"name": "lastName", "type": "string"},
      {"name": "email", "type": "string"},
      {"name": "address", "type": "string"},
-    {"name": "transactionDate", "type": ["int", "null"], "logicalType" : "date"}
+     {"name": "accountCreationDate", "type": ["int", "null"], "logicalType" : "date"}
  ]
 }
 

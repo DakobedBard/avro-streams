@@ -44,16 +44,16 @@ public class InventoryController {
         return new ProductBean(product.getBrand(), product.getName()) ;
     }
 
-    @RequestMapping("/charts/top-five")
+    @RequestMapping("/product/top-five")
     @SuppressWarnings("unchecked")
     public List<ProductPurchaseCountBean> topFive(@RequestParam(value="genre") String genre) {
 
-        HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryService.TOP_FIVE_SONGS_STORE,
+        HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryService.TOP_FIVE_PRODUCTS_STORE,
                 InventoryService.TOP_FIVE_KEY, new StringSerializer());
 
         if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
-            logger.info("Top Five songs request served from same host: " + hostInfo);
-            return topFiveSongs(InventoryService.TOP_FIVE_KEY, InventoryService.TOP_FIVE_SONGS_STORE);
+            logger.info("Top Five products request served from same host: " + hostInfo);
+            return topFiveProducts(InventoryService.TOP_FIVE_KEY, InventoryService.TOP_FIVE_PRODUCTS_STORE);
         }
         else {
             //find the store from the proper instance.
@@ -65,7 +65,7 @@ public class InventoryController {
         }
     }
 
-    private List<ProductPurchaseCountBean> topFiveSongs(final String key, final String storeName) {
+    private List<ProductPurchaseCountBean> topFiveProducts(final String key, final String storeName) {
         final ReadOnlyKeyValueStore<String, InventoryService.TopFiveProducts> topFiveStore =
                 interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.<String, InventoryService.TopFiveProducts>keyValueStore());
 
@@ -81,7 +81,7 @@ public class InventoryController {
                     productPurchaseCount.getProductId(), new LongSerializer());
 
             if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
-                logger.info("Song info request served from same host: " + hostInfo);
+                logger.info("Product info request served from same host: " + hostInfo);
 
                 final ReadOnlyKeyValueStore<Long, Product> productStore =
                         interactiveQueryService.getQueryableStore(InventoryService.ALL_PRODUCTS, QueryableStoreTypes.<Long, Product>keyValueStore());
@@ -90,7 +90,7 @@ public class InventoryController {
                 results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(), productPurchaseCount.getCount()));
             }
             else {
-                logger.info("Song info request served from different host: " + hostInfo);
+                logger.info("Product info request served from different host: " + hostInfo);
                 RestTemplate restTemplate = new RestTemplate();
                 ProductBean product = restTemplate.postForObject(
                         String.format("http://%s:%d/%s", hostInfo.host(),
