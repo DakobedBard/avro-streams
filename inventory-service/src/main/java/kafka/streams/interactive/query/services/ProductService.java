@@ -27,7 +27,8 @@ public class ProductService {
         }else{
             log.info("fuck you");
         }
-        ProductEntity product = new ProductEntity(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
+        ProductEntity product = new ProductEntity(productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
+//        ProductEntity product = new ProductEntity(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
         productMongoRepository.save(product);
     }
 
