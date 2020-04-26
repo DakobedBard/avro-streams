@@ -6,13 +6,12 @@ services:
     volumes:
       - product_volume:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=database1_role
-      - POSTGRES_PASSWORD=database1_password
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=productdb
     container_name: productDB
     ports:
       - 5433:5432
-
     networks:
       - mddarr
 
@@ -31,7 +30,7 @@ services:
   mongodb-order:
     image: mongo:3.4.22-xenial
     ports:
-      - 27018:27017
+      - 27017:27017
     networks:
       - mddarr
     container_name: mongosdb

@@ -15,15 +15,30 @@
  */
 
 package kafka.streams.interactive.query;
+import kafka.streams.interactive.query.dao.ProductRepository;
+import kafka.streams.interactive.query.entity.ProductEntity;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
 
 
 @SpringBootApplication
-public class InventoryServiceInteractiveQueries {
+public class InventoryServiceInteractiveQueries implements ApplicationRunner {
 
+	@Autowired
+	ProductRepository productRepository;
+	private final Log log = LogFactory.getLog(getClass());
+
+	@Override
+	public void run(ApplicationArguments args) {
+		log.info("When do I get called");
+//		productRepository.save(new ProductEntity("dfd", "dfd","daa",12L));
+	}
 	@Autowired
 	private InteractiveQueryService interactiveQueryService;
 
