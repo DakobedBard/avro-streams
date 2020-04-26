@@ -37,92 +37,92 @@ public class UserResource {
     }
 
 
-    @PostMapping("/orders/")
-    public String product(@RequestParam(value="products") List<Long> products, @RequestParam(value="quantities") List<Long> quantities,
-                          @RequestParam(value="cid")  Long cid, @RequestParam(value="price") Long price)
-    {
-
-        UUID uuid =  UUID.randomUUID();
-        Order order = new Order(uuid.toString(),1L,products,quantities);
-        this.producer.sendOrder(order);
-        return "order";
-    }
-    @GetMapping("/async")
-    public DeferredResult<ResponseEntity<?>> handleReqDefResult(Model model) {
-        log.info("Received async-deferredresult request");
-        DeferredResult<ResponseEntity<?>> output = new DeferredResult<>();
-
-        ForkJoinPool.commonPool().submit(() -> {
-            log.info("Processing in separate thread");
-            try {
-                Thread.sleep(6000);
-            } catch (InterruptedException e) {
-            }
-            output.setResult(ResponseEntity.ok("ok"));
-        });
-
-        log.info("servlet thread freed");
-        return output;
-    }
-
-    @GetMapping("/timeout")
-    public DeferredResult<ResponseEntity<?>> handleReqWithTimeouts(Model model) {
-        log.info("Received async request with a configured timeout");
-        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(500l);
-        deferredResult.onTimeout(new Runnable() {
-            @Override
-            public void run() {
-                deferredResult.setErrorResult(
-                        ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body("Request timeout occurred."));
-            }
-        });
-        ForkJoinPool.commonPool().submit(() -> {
-            log.info("Processing in separate thread");
-            try {
-                Thread.sleep(600l);
-                deferredResult.setResult(ResponseEntity.ok("ok"));
-            } catch (InterruptedException e) {
-                log.info("Request processing interrupted");
-                deferredResult.setErrorResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("INTERNAL_SERVER_ERROR occurred."));
-            }
-
-        });
-        log.info("servlet thread freed");
-        return deferredResult;
-    }
-
-    @GetMapping("/fail")
-    public DeferredResult<ResponseEntity<?>> handleAsyncFailedRequest(Model model) {
-        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>();
-        ForkJoinPool.commonPool().submit(() -> {
-            try {
-                // Exception occurred in processing
-                throw new Exception();
-            } catch (Exception e) {
-                log.info("Request processing failed");
-                deferredResult.setErrorResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("INTERNAL_SERVER_ERROR occurred."));
-            }
-        });
-        return deferredResult;
-    }
-
-
-    @GetMapping("/test")
-    DeferredResult<String> test(){
-        Long timeOutInMilliSec = 100000L;
-        String timeOutResp = "Time Out.";
-        DeferredResult<String> deferredResult = new DeferredResult<>(timeOutInMilliSec,timeOutResp);
-        CompletableFuture.runAsync(()->{
-            try {
-                //Long pooling task;If task is not completed within 100 sec timeout response retrun for this request
-                TimeUnit.SECONDS.sleep(10);
-                //set result after completing task to return response to client
-                deferredResult.setResult("Task Finished");
-            }catch (Exception ex){
-            }
-        });
-        return deferredResult;
-    }
+//    @PostMapping("/orders/")
+//    public String product(@RequestParam(value="products") List<Long> products, @RequestParam(value="quantities") List<Long> quantities,
+//                          @RequestParam(value="cid")  Long cid, @RequestParam(value="price") Long price)
+//    {
+//
+//        UUID uuid =  UUID.randomUUID();
+//        Order order = new Order(uuid.toString(),1L,products,quantities);
+//        this.producer.sendOrder(order);
+//        return "order";
+//    }
+//    @GetMapping("/async")
+//    public DeferredResult<ResponseEntity<?>> handleReqDefResult(Model model) {
+//        log.info("Received async-deferredresult request");
+//        DeferredResult<ResponseEntity<?>> output = new DeferredResult<>();
+//
+//        ForkJoinPool.commonPool().submit(() -> {
+//            log.info("Processing in separate thread");
+//            try {
+//                Thread.sleep(6000);
+//            } catch (InterruptedException e) {
+//            }
+//            output.setResult(ResponseEntity.ok("ok"));
+//        });
+//
+//        log.info("servlet thread freed");
+//        return output;
+//    }
+//
+//    @GetMapping("/timeout")
+//    public DeferredResult<ResponseEntity<?>> handleReqWithTimeouts(Model model) {
+//        log.info("Received async request with a configured timeout");
+//        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>(500l);
+//        deferredResult.onTimeout(new Runnable() {
+//            @Override
+//            public void run() {
+//                deferredResult.setErrorResult(
+//                        ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body("Request timeout occurred."));
+//            }
+//        });
+//        ForkJoinPool.commonPool().submit(() -> {
+//            log.info("Processing in separate thread");
+//            try {
+//                Thread.sleep(600l);
+//                deferredResult.setResult(ResponseEntity.ok("ok"));
+//            } catch (InterruptedException e) {
+//                log.info("Request processing interrupted");
+//                deferredResult.setErrorResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                        .body("INTERNAL_SERVER_ERROR occurred."));
+//            }
+//
+//        });
+//        log.info("servlet thread freed");
+//        return deferredResult;
+//    }
+//
+//    @GetMapping("/fail")
+//    public DeferredResult<ResponseEntity<?>> handleAsyncFailedRequest(Model model) {
+//        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<>();
+//        ForkJoinPool.commonPool().submit(() -> {
+//            try {
+//                // Exception occurred in processing
+//                throw new Exception();
+//            } catch (Exception e) {
+//                log.info("Request processing failed");
+//                deferredResult.setErrorResult(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                        .body("INTERNAL_SERVER_ERROR occurred."));
+//            }
+//        });
+//        return deferredResult;
+//    }
+//
+//
+//    @GetMapping("/test")
+//    DeferredResult<String> test(){
+//        Long timeOutInMilliSec = 100000L;
+//        String timeOutResp = "Time Out.";
+//        DeferredResult<String> deferredResult = new DeferredResult<>(timeOutInMilliSec,timeOutResp);
+//        CompletableFuture.runAsync(()->{
+//            try {
+//                //Long pooling task;If task is not completed within 100 sec timeout response retrun for this request
+//                TimeUnit.SECONDS.sleep(10);
+//                //set result after completing task to return response to client
+//                deferredResult.setResult("Task Finished");
+//            }catch (Exception ex){
+//            }
+//        });
+//        return deferredResult;
+//    }
 }
