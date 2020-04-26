@@ -190,13 +190,11 @@ public class InventoryService {
 
         @Override
         public Deserializer<TopFiveProducts> deserializer() {
-
             return (s, bytes) -> {
                 if (bytes == null || bytes.length == 0) {
                     return null;
                 }
                 final TopFiveProducts result = new TopFiveProducts();
-
                 final DataInputStream
                         dataInputStream =
                         new DataInputStream(new ByteArrayInputStream(bytes));

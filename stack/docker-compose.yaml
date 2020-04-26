@@ -1,5 +1,21 @@
 version: '2'
 services:
+
+  productDB:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    volumes:
+      - product_volume:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=database1_role
+      - POSTGRES_PASSWORD=database1_password
+      - POSTGRES_DB=productdb
+    container_name: productDB
+    ports:
+      - 5433:5432
+
+    networks:
+      - mddarr
+
   postgres:
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -9,12 +25,25 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=customersDB
     container_name: db
+    networks:
+      - mddarr
+
+  mongodb-order:
+    image: mongo:3.4.22-xenial
+    ports:
+      - 27018:27017
+    networks:
+      - mddarr
+    container_name: mongosdb
+
   zookeeper:
     image: debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
       - 2181:2181
       - 2888:2888
       - 3888:3888
+    networks:
+      - mddarr
   kafka:
     image: debezium/kafka:${DEBEZIUM_VERSION}
     ports:
@@ -23,6 +52,8 @@ services:
       - zookeeper
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
+    networks:
+      - mddarr
 #
   schema-registry:
     image: confluentinc/cp-schema-registry
@@ -36,23 +67,29 @@ services:
     links:
       - zookeeper
       - kafka
-  connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
-    ports:
-      - 8083:8083
-    links:
-      - kafka
-      - postgres
-      - schema-registry
-    environment:
-      - BOOTSTRAP_SERVERS=kafka:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=my_connect_configs
-      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-      - STATUS_STORAGE_TOPIC=my_connect_statuses
-      - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
-      - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
-      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
-      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    networks:
+      - mddarr
+#  connect:
+#    image: debezium/connect:${DEBEZIUM_VERSION}
+#    ports:
+#      - 8083:8083
+#    links:
+#      - kafka
+#      - postgres
+#      - schema-registry
+#    environment:
+#      - BOOTSTRAP_SERVERS=kafka:9092
+#      - GROUP_ID=1
+#      - CONFIG_STORAGE_TOPIC=my_connect_configs
+#      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+#      - STATUS_STORAGE_TOPIC=my_connect_statuses
+#      - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+#      - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+#      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+#      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+#      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+#      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+volumes:
+  product_volume:
+networks:
+  mddarr:
