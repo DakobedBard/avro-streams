@@ -5,6 +5,8 @@ import kafka.streams.interactive.query.dao.ProductRepository;
 
 import kafka.streams.interactive.query.entity.ProductEntity;
 import org.mddarr.inventory.Product;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -17,9 +19,14 @@ import java.util.function.BiFunction;
 public class ProductService {
     @Autowired
     ProductRepository productMongoRepository;
-
+    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
     public void addProduct(ProductDTO productDTO){
         UUID uuid =  UUID.randomUUID();
+        if(productDTO.getBrand() == null){
+            log.info("fuck");
+        }else{
+            log.info("fuck you");
+        }
         ProductEntity product = new ProductEntity(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
         productMongoRepository.save(product);
     }
