@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker exec -it psql -U postgres -d productdb
+docker exec -it productDB psql -U postgres -d productdb
