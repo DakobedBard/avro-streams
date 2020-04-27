@@ -9,18 +9,13 @@
         <artifactId>avro-streams</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
+    <name>orders-service</name>
     <version>1.0-SNAPSHOT</version>
-
     <artifactId>orders-service</artifactId>
     <properties>
-
         <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
     </properties>
-
     <dependencies>
-
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>

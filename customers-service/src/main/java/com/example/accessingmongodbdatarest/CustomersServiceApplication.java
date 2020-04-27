@@ -5,9 +5,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AccessingMongodbDataRestApplication {
+public class CustomersServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AccessingMongodbDataRestApplication.class, args);
+		SpringApplication.run(CustomersServiceApplication.class, args);
 	}
 }

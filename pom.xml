@@ -20,7 +20,7 @@
         <module>avro-schema</module>
         <module>inventory-service</module>
         <module>order-service</module>
-        <module>customers</module>
+        <module>customers-service</module>
 <!--        <module>listener</module>-->
     </modules>
     <dependencies>
