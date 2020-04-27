@@ -19,7 +19,6 @@ package kafka.streams.interactive.query.producers;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 //import kafka.streams.interactive.query.avro.PlayEvent;
-import kafka.streams.interactive.query.dao.ProductRepository;
 import kafka.streams.interactive.query.entity.ProductEntity;
 import kafka.streams.interactive.query.services.InventoryService;
 import org.mddarr.inventory.Product;

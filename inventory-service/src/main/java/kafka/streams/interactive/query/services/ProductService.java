@@ -1,7 +1,8 @@
 package kafka.streams.interactive.query.services;
 
 import kafka.streams.interactive.query.bean.ProductDTO;
-import kafka.streams.interactive.query.dao.ProductRepository;
+import kafka.streams.interactive.query.dao.ProductPostgresRepository;
+
 
 import kafka.streams.interactive.query.entity.ProductEntity;
 import org.mddarr.inventory.Product;
@@ -18,7 +19,7 @@ import java.util.function.BiFunction;
 @Service
 public class ProductService {
     @Autowired
-    ProductRepository productMongoRepository;
+    ProductPostgresRepository productMongoRepository;
     private static final Logger log = LoggerFactory.getLogger(ProductService.class);
     public void addProduct(ProductDTO productDTO){
         UUID uuid =  UUID.randomUUID();
