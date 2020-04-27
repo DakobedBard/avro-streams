@@ -150,6 +150,25 @@ public class PurchaseEventProducer {
 		} catch (SQLException e) {
 			System.err.println(e.getClass().getName()+": "+e.getMessage());
 		}
+
+
+		DefaultKafkaProducerFactory<String, PurchaseEvent> pf = new DefaultKafkaProducerFactory<>(props);
+		KafkaTemplate<String, PurchaseEvent> template = new KafkaTemplate<>(pf, true);
+
+		template.setDefaultTopic(InventoryService.PURCHASE_EVENTS);
+
+		final long purchase_quantity = 3;
+		final Random random = new Random();
+
+		// send a play event every 100 milliseconds
+		while (true) {
+			final Product product = products.get(random.nextInt(products.size()));
+			System.out.println("Writing purchase event for product " + product.getName() + " to input topic " +
+					InventoryService.PURCHASE_EVENTS);
+			template.sendDefault("uk", new PurchaseEvent(1L, product.getId(), purchase_quantity));
+
+			Thread.sleep(100L);
+		}
 	}
 }
 
