@@ -19,7 +19,7 @@ import java.util.UUID;
 public class ProductService {
 
     @Autowired
-    private InventoryRepository postgresRepository;
+    InventoryRepository postgresRepository;
 
     @Autowired
     AvroProductProducer avroProductProducer;

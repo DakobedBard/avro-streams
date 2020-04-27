@@ -3,7 +3,7 @@ topic:
   partitions-num: 3
   replication-factor: 1
 server:
-  port: 8008
+  port: 8010
 
 spring.application.name: kafka-streams-iq-advanced-sample
 spring:
@@ -41,6 +41,8 @@ spring:
         interceptor.classes: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
     template:
       default-topic:
-logging:
+
+  main:
+    allow-bean-definition-overriding: true
   level:
     root: info

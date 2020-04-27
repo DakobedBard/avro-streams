@@ -2,31 +2,22 @@ package org.mddarr.orders.controller;
 
 import org.mddarr.orders.beans.OrderDTO;
 import org.mddarr.orders.event.dto.Event1;
-import org.mddarr.orders.event.dto.Order;
-import org.mddarr.orders.service.AvroProducer;
+import org.mddarr.orders.service.OrderAvroProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/user")
 public class UserResource {
     private static final Logger log = LoggerFactory.getLogger(UserResource.class);
-    private final AvroProducer producer;
+    private final OrderAvroProducer producer;
 
     @Autowired
-    UserResource(AvroProducer producer) {
+    UserResource(OrderAvroProducer producer) {
         this.producer = producer;
     }
 
@@ -37,14 +28,14 @@ public class UserResource {
 //        this.producer.sendEvent1();
     }
 
-    @PostMapping("/orders/")
-    public String product(@RequestParam(value="products") List<String> products, @RequestParam(value="quantities") List<Long> quantities,
-                          @RequestParam(value="cid")  String cid, @RequestParam(value="price") Double price)
-    {
-        OrderDTO order = new OrderDTO(products, quantities, price, cid);
-        this.producer.sendOrder(order);
-        return "order";
-    }
+//    @PostMapping("/orders/")
+//    public String product(@RequestParam(value="products") List<String> products, @RequestParam(value="quantities") List<Long> quantities,
+//                          @RequestParam(value="cid")  String cid, @RequestParam(value="price") Double price)
+//    {
+//        OrderDTO order = new OrderDTO(products, quantities, price, cid);
+//        this.producer.sendOrder(order);
+//        return "order";
+//    }
 //    @GetMapping("/async")
 //    public DeferredResult<ResponseEntity<?>> handleReqDefResult(Model model) {
 //        log.info("Received async-deferredresult request");
