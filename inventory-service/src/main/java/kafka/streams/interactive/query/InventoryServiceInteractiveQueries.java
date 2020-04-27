@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package kafka.streams.interactive.query;
-import kafka.streams.interactive.query.dao.ProductRepository;
-import kafka.streams.interactive.query.entity.ProductEntity;
+package kafka.streams.interactive.query;import kafka.streams.interactive.query.entity.ProductEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +28,6 @@ import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQuerySer
 @SpringBootApplication
 public class InventoryServiceInteractiveQueries implements ApplicationRunner {
 
-	@Autowired
-	ProductRepository productRepository;
 	private final Log log = LogFactory.getLog(getClass());
 
 	@Override

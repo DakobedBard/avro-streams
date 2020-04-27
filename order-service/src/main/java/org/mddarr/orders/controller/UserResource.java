@@ -1,5 +1,6 @@
 package org.mddarr.orders.controller;
 
+import org.mddarr.orders.beans.OrderDTO;
 import org.mddarr.orders.event.dto.Event1;
 import org.mddarr.orders.event.dto.Order;
 import org.mddarr.orders.service.AvroProducer;
@@ -36,17 +37,14 @@ public class UserResource {
 //        this.producer.sendEvent1();
     }
 
-
-//    @PostMapping("/orders/")
-//    public String product(@RequestParam(value="products") List<Long> products, @RequestParam(value="quantities") List<Long> quantities,
-//                          @RequestParam(value="cid")  Long cid, @RequestParam(value="price") Long price)
-//    {
-//
-//        UUID uuid =  UUID.randomUUID();
-//        Order order = new Order(uuid.toString(),1L,products,quantities);
-//        this.producer.sendOrder(order);
-//        return "order";
-//    }
+    @PostMapping("/orders/")
+    public String product(@RequestParam(value="products") List<String> products, @RequestParam(value="quantities") List<Long> quantities,
+                          @RequestParam(value="cid")  String cid, @RequestParam(value="price") Double price)
+    {
+        OrderDTO order = new OrderDTO(products, quantities, price, cid);
+        this.producer.sendOrder(order);
+        return "order";
+    }
 //    @GetMapping("/async")
 //    public DeferredResult<ResponseEntity<?>> handleReqDefResult(Model model) {
 //        log.info("Received async-deferredresult request");

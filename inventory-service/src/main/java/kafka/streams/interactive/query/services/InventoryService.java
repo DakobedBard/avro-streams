@@ -23,6 +23,7 @@ import java.util.function.BiConsumer;
 @Service
 public class InventoryService {
 
+    public static final String PRODUCTS_TOPIC ="products";
     public static final String PURCHASE_EVENTS = "purchase-events";
     public static final String PRODUCT_FEED = "product-feed";
     public static final String TOP_FIVE_KEY = "all";

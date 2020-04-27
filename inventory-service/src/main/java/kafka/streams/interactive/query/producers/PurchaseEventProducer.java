@@ -19,7 +19,6 @@ package kafka.streams.interactive.query.producers;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 //import kafka.streams.interactive.query.avro.PlayEvent;
-import kafka.streams.interactive.query.dao.ProductRepository;
 import kafka.streams.interactive.query.entity.ProductEntity;
 import kafka.streams.interactive.query.services.InventoryService;
 import org.mddarr.inventory.Product;
@@ -27,6 +26,7 @@ import org.mddarr.inventory.PurchaseEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.mddarr.products.ProductAvro;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -43,9 +43,28 @@ import java.sql.Statement;
 
 public class PurchaseEventProducer {
 
-
 	public static void main(String... args) throws Exception {
-		int b = 0;
+		final Map<String, String> serdeConfig = Collections.singletonMap(
+				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
+		// Set serializers and
+
+		final SpecificAvroSerializer<ProductAvro> productSerializer = new SpecificAvroSerializer<>();
+		productSerializer.configure(serdeConfig, false);
+
+		Map<String, Object> props = new HashMap<>();
+		props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+		props.put(ProducerConfig.RETRIES_CONFIG, 0);
+		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+		props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, productSerializer.getClass());
+
+		DefaultKafkaProducerFactory<Long, ProductAvro> pf1 = new DefaultKafkaProducerFactory<>(props);
+		KafkaTemplate<Long, ProductAvro> template1 = new KafkaTemplate<>(pf1, true);
+		template1.setDefaultTopic(InventoryService.PRODUCTS_TOPIC);
+
 		Statement stmt = null;
 		Connection c = null;
 		String row;
@@ -64,7 +83,7 @@ public class PurchaseEventProducer {
 				String sql = String.format("INSERT INTO product_entity (\"id\",\"brand\",\"name\",\"price\") "
 						+ "VALUES ('%s', '%s', '%s', %d );",uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2]));
 				stmt.executeUpdate(sql);
-
+				template1.sendDefault(new ProductAvro(uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2])));
 				System.out.println(columns[0]);
 			}
 		} catch (Exception e) {
@@ -75,23 +94,6 @@ public class PurchaseEventProducer {
 
 		System.out.println("Opened database successfully");
 
-//		String row;
-//		String[] columns;
-//		UUID uuid;
-//		List<List<String>> records = new ArrayList<>();
-//		try (BufferedReader br = new BufferedReader(new FileReader("stack/db/products.csv"))) {
-//			while((row = br .readLine()) != null){
-//				uuid =  UUID.randomUUID();
-//				columns = row.split(",");
-//				productRepository.save(new ProductEntity(uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2])));
-//				System.out.println(columns[0]);
-//			}
-//
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
 	}
 }
 //}

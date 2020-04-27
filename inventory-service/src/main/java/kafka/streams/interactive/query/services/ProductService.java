@@ -1,41 +1,42 @@
 package kafka.streams.interactive.query.services;
 
 import kafka.streams.interactive.query.bean.ProductDTO;
-import kafka.streams.interactive.query.dao.ProductRepository;
 
+
+import kafka.streams.interactive.query.dao.InventoryRepository;
 import kafka.streams.interactive.query.entity.ProductEntity;
-import org.mddarr.inventory.Product;
+import org.mddarr.products.Product;
+import org.mddarr.products.ProductAvro;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiFunction;
 
 @Service
 public class ProductService {
+
     @Autowired
-    ProductRepository productMongoRepository;
+    private InventoryRepository postgresRepository;
+
+    @Autowired
+    AvroProductProducer avroProductProducer;
+
     private static final Logger log = LoggerFactory.getLogger(ProductService.class);
     public void addProduct(ProductDTO productDTO){
         UUID uuid =  UUID.randomUUID();
-        if(productDTO.getBrand() == null){
-            log.info("fuck");
-        }else{
-            log.info("fuck you");
-        }
-        ProductEntity product = new ProductEntity(productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
+        ProductEntity product = new ProductEntity(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
 //        ProductEntity product = new ProductEntity(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
-        productMongoRepository.save(product);
+        postgresRepository.save(product);
+        avroProductProducer.sendProduct(product);
     }
 
     public Optional<ProductEntity> getProduct(String id){
-        return productMongoRepository.findById(id);
+        return postgresRepository.findById(id);
     }
-    public void deleteProduct(String id){productMongoRepository.deleteById(id);}
+    public void deleteProduct(String id){postgresRepository.deleteById(id);}
 
 
 }
