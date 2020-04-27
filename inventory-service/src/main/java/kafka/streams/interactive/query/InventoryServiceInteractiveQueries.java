@@ -17,23 +17,10 @@
 package kafka.streams.interactive.query;import kafka.streams.interactive.query.entity.ProductEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Predicate;
-import org.apache.kafka.streams.kstream.TimeWindows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
-import org.springframework.context.annotation.Bean;
-
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.function.Function;
 
 
 @SpringBootApplication
@@ -41,15 +28,12 @@ public class InventoryServiceInteractiveQueries {
 
 	private final Log log = LogFactory.getLog(getClass());
 
-
 	@Autowired
 	private InteractiveQueryService interactiveQueryService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(InventoryServiceInteractiveQueries.class, args);
 	}
-
-
 
 }
 

@@ -39,48 +39,8 @@ public class InventoryService {
     private static final String PRODUCT_PLAY_COUNT_STORE = "product-play-count";
 
     static final String TOP_FIVE_SONGS_BY_GENRE_STORE = "top-five-products-by-brand";
-//    @Bean
-//    public Consumer<KStream<String, Order>> orders(){
-//        return s -> {
-//            log.info("Receivve an order..");
-//        };
-//    }
 
 
-//    @Bean
-//    public BiConsumer<KStream<String, Order>, KTable<Long, ProductAvro>> orders() {
-//
-//        return (s, t) -> {
-//            // create and configure the SpecificAvroSerdes required in this example
-//
-//            log.info("what");
-//            final Map<String, String> serdeConfig = Collections.singletonMap(
-//                    AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
-//
-//            final SpecificAvroSerde<PurchaseEvent> purchaseEventSerde = new SpecificAvroSerde<>();
-//            purchaseEventSerde.configure(serdeConfig, false);
-//
-//            final SpecificAvroSerde<Product> keyProductSerde = new SpecificAvroSerde<>();
-//            keyProductSerde.configure(serdeConfig, true);
-//
-//            final SpecificAvroSerde<Product> valueProductSerde = new SpecificAvroSerde<>();
-//            valueProductSerde.configure(serdeConfig, false);
-//
-//            final SpecificAvroSerde<PurchaseCount> productPurchaseCountSerde = new SpecificAvroSerde<>();
-//            productPurchaseCountSerde.configure(serdeConfig, false);
-//
-//            // Accept play events that have a duration >= the minimum
-////            final KStream<Long, PurchaseEvent> purchasesByProductId =
-////                    s.map((key, value) -> KeyValue.pair(value.getId(), value));
-//////								filter((region, event) -> event.getDuration() >= MIN_CHARTABLE_DURATION)
-//////								// repartition based on song id
-//////								.map((key, value) -> KeyValue.pair(value.getSongId(), value));
-//        };
-//    }
-//
-//
-
-    //
     @Bean
     public BiConsumer<KStream<String, PurchaseEvent>, KTable<String, Product>> process() {
 
