@@ -26,15 +26,11 @@ import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQuerySer
 
 
 @SpringBootApplication
-public class InventoryServiceInteractiveQueries implements ApplicationRunner {
+public class InventoryServiceInteractiveQueries {
 
 	private final Log log = LogFactory.getLog(getClass());
 
-	@Override
-	public void run(ApplicationArguments args) {
-		log.info("When do I get called");
-//		productRepository.save(new ProductEntity("dfd", "dfd","daa",12L));
-	}
+
 	@Autowired
 	private InteractiveQueryService interactiveQueryService;
 
