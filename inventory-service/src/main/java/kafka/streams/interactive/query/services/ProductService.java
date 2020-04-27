@@ -4,6 +4,8 @@ import kafka.streams.interactive.query.bean.ProductDTO;
 
 
 import kafka.streams.interactive.query.dao.InventoryRepository;
+import kafka.streams.interactive.query.entity.ProductEntity;
+import org.mddarr.products.Product;
 import org.mddarr.products.ProductAvro;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +27,13 @@ public class ProductService {
     private static final Logger log = LoggerFactory.getLogger(ProductService.class);
     public void addProduct(ProductDTO productDTO){
         UUID uuid =  UUID.randomUUID();
-        ProductAvro product = new ProductAvro(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
+        ProductEntity product = new ProductEntity(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
 //        ProductEntity product = new ProductEntity(uuid.toString(),productDTO.getName(),productDTO.getBrand(),productDTO.getPrice());
         postgresRepository.save(product);
         avroProductProducer.sendProduct(product);
     }
 
-    public Optional<ProductAvro> getProduct(String id){
+    public Optional<ProductEntity> getProduct(String id){
         return postgresRepository.findById(id);
     }
     public void deleteProduct(String id){postgresRepository.deleteById(id);}

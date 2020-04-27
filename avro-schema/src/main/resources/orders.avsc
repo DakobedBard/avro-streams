@@ -14,7 +14,7 @@
      {"name": "id", "type": "string"},
      {"name": "customerId", "type": "string"},
      {"name": "state", "type": "OrderState"},
-     {"name":"productIDS","type" :  {  "type": "array","items": "long" }},
+     {"name":"productIDS","type" :  {  "type": "array","items": "string" }},
      {"name":"quantities","type" :  {  "type": "array","items": "long" }},
      {"name": "price", "type": "double"}
  ]

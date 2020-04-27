@@ -1,5 +1,6 @@
 package kafka.streams.interactive.query.services;
 
+import kafka.streams.interactive.query.entity.ProductEntity;
 import org.mddarr.orders.event.dto.Event1;
 import org.mddarr.orders.event.dto.Order;
 import org.mddarr.products.ProductAvro;
@@ -16,9 +17,10 @@ public class AvroProductProducer {
 
     private static final Logger logger = LoggerFactory.getLogger(AvroProductProducer.class);
 
-    public void sendProduct(ProductAvro product) {
+    public void sendProduct(ProductEntity product) {
         logger.info("Send product  {}", product);
-        kafkaTemplateEvent1.send("products", product);
+        ProductAvro  prod = new ProductAvro(product.getId(), product.getBrand(), product.getName(), product.getPrice());
+        kafkaTemplateEvent1.send("products", prod);
     }
 
 
