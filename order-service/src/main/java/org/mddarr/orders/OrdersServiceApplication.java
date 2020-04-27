@@ -12,7 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 import javax.annotation.PostConstruct;
 
-@SpringBootApplication(exclude={DataSourceAutoConfiguration.class})
+@SpringBootApplication()
 @ComponentScan(basePackages = "org.mddarr.orders")
 public class OrdersServiceApplication {
 

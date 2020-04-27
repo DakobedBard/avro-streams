@@ -43,7 +43,6 @@ import java.sql.Statement;
 
 public class PurchaseEventProducer {
 
-
 	public static void main(String... args) throws Exception {
 		final Map<String, String> serdeConfig = Collections.singletonMap(
 				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
