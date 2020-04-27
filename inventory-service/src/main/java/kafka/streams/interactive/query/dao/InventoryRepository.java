@@ -2,6 +2,7 @@ package kafka.streams.interactive.query.dao;
 
 import kafka.streams.interactive.query.entity.ProductEntity;
 import org.mddarr.products.ProductAvro;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

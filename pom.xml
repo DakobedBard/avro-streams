@@ -20,8 +20,17 @@
         <module>avro-schema</module>
         <module>inventory-service</module>
         <module>order-service</module>
+        <module>customers</module>
 <!--        <module>listener</module>-->
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.5.2</version>
+        </dependency>
+    </dependencies>
+
     <repositories>
         <repository>
             <id>confluent</id>

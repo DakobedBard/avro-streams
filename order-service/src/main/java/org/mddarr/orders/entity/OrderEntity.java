@@ -1,5 +1,7 @@
 package org.mddarr.orders.entity;
 
+import org.graalvm.compiler.core.common.type.ArithmeticOpTable;
+
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,7 +17,19 @@ public class OrderEntity {
     List<Long> quantities;
     Double price;
     String customerID;
+    String state;
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public OrderEntity(){
+
+    }
     public String getId() {
         return id;
     }
@@ -56,11 +70,12 @@ public class OrderEntity {
         this.customerID = customerID;
     }
 
-    public OrderEntity(String id, List<String> products, List<Long> quantities, Double price, String customerID) {
+    public OrderEntity(String id, List<String> products, List<Long> quantities, Double price, String customerID, String state) {
         this.id = id;
         this.products = products;
         this.quantities = quantities;
         this.price = price;
         this.customerID = customerID;
+        this.state = state;
     }
 }

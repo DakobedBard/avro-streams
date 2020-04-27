@@ -38,9 +38,10 @@ public class OrderService {
         Order order =new Order(uuid.toString(), orderDTO.getCustomerID(), OrderState.PENDING, orderDTO.getProducts(), orderDTO.getQuantities(), orderDTO.getPrice());
 //        order.setState(OrderState.PENDING);
 //        order=orderRepository.save(order);
-        orderServicePublish.sendOrder(order);
-        OrderEntity orderEntity = new OrderEntity(uuid.toString(),orderDTO.getProducts(),orderDTO.getQuantities(), orderDTO.getPrice(), orderDTO.getCustomerID());
+//        orderServicePublish.sendOrder(order);
+        OrderEntity orderEntity = new OrderEntity(uuid.toString(),orderDTO.getProducts(),orderDTO.getQuantities(), orderDTO.getPrice(), orderDTO.getCustomerID(), OrderState.PENDING.toString());
         orderRepositoryy.save(orderEntity);
+        producer.sendOrder(order);
         log.info("Order with id "+order.getId()+" sent to orders topic");
         return order;
     }
