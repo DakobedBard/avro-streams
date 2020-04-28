@@ -33,11 +33,12 @@ public class InventoryController {
     private final Log logger = LogFactory.getLog(getClass());
 
     @RequestMapping("/product/idx")
-    public ProductBean product(@RequestParam(value="id") Long id) {
-        final ReadOnlyKeyValueStore<Long, Product> productStore =
-                interactiveQueryService.getQueryableStore(InventoryService.ALL_PRODUCTS, QueryableStoreTypes.<Long, Product>keyValueStore());
+    public ProductBean product(@RequestParam(value="id") String id) {
+        final ReadOnlyKeyValueStore<String, Product> productStore =
+                interactiveQueryService.getQueryableStore(InventoryService.ALL_PRODUCTS, QueryableStoreTypes.<String, Product>keyValueStore());
 
         final Product product = productStore.get(id);
+
         if (product == null) {
             throw new IllegalArgumentException("hi");
         }

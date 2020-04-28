@@ -42,20 +42,21 @@ import java.util.*;
 
 public class PurchaseEventProducer {
 
-	public static boolean interactive = true;
+	public static boolean interactive = false;
 
 	public static void main(String... args) throws Exception {
-		if (interactive) {
-			initProductsTopic();
-		} else {
-			initProductsDB();
-		}
+		initProductsDB();
+		initProductsTopic();
+//		if (interactive) {
+//			initProductsTopic();
+//		} else {
+//			initProductsDB();
+//		}
 	}
 
 	private static void initProductsDB() {
 		final Map<String, String> serdeConfig = Collections.singletonMap(
 				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
-		// Set serializers and
 
 		final SpecificAvroSerializer<Product> productSerializer = new SpecificAvroSerializer<>();
 		productSerializer.configure(serdeConfig, false);
@@ -67,11 +68,12 @@ public class PurchaseEventProducer {
 		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
 		props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
 		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, productSerializer.getClass());
 
-		DefaultKafkaProducerFactory<Long, Product> pf1 = new DefaultKafkaProducerFactory<>(props);
-		KafkaTemplate<Long, Product> template1 = new KafkaTemplate<>(pf1, true);
+		DefaultKafkaProducerFactory<String, Product> pf1 = new DefaultKafkaProducerFactory<>(props);
+
+		KafkaTemplate<String, Product> template1 = new KafkaTemplate<>(pf1, true);
 		template1.setDefaultTopic(InventoryService.PRODUCTS_TOPIC);
 
 		Statement stmt = null;
@@ -92,7 +94,7 @@ public class PurchaseEventProducer {
 				String sql = String.format("INSERT INTO product_entity (\"id\",\"brand\",\"name\",\"price\") "
 						+ "VALUES ('%s', '%s', '%s', %d );",uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2]));
 				stmt.executeUpdate(sql);
-				template1.sendDefault(new Product(uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2])));
+				template1.sendDefault(uuid.toString(),new Product(uuid.toString(),columns[0], columns[1], Long.parseLong(columns[2])));
 				System.out.println(columns[0]);
 			}
 		} catch (Exception e) {
