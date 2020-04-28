@@ -1,52 +1,47 @@
 package com.example.accessingmongodbdatarest.producer;
 
-import com.example.accessingmongodbdatarest.entity.CustomerEntity;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
-
+import com.mongodb.MongoCommandException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import org.mddarr.orders.records.dto.Customer;
 import org.bson.Document;
 import java.io.BufferedReader;
 import java.io.FileReader;
-
-import java.util.UUID;
-
+import java.io.IOException;
 
 public class CustomersProducer {
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
+        boolean createCollection = false;
+
         BasicDBObjectBuilder documentBuilder = BasicDBObjectBuilder.start();
 
         Document document;
-        UUID uuid;
         String row;
         String[] columns;
         MongoClient mongoClient = new MongoClient();
         MongoDatabase db = mongoClient.getDatabase("test");
-        try {
-            db.createCollection("customerEntity");
-        }catch(Exception e){
 
+        if(createCollection){
+            db.createCollection("customerEntity");
         }
         MongoCollection<Document> dbCollection = db.getCollection("customerEntity");
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("stack/db/customers.csv"));
+            BufferedReader br = new BufferedReader(new FileReader("stack/db/parsed_customers.csv"));
             while((row = br .readLine()) != null) {
-                uuid = UUID.randomUUID();
+
                 columns = row.split(",");
+                System.out.println(columns[1]);
                 document = new Document()
-                        .append("_id", uuid.toString())
-                        .append("firstName",columns[2])
-                        .append("lastName",columns[3])
-                        .append("email",columns[4])
-                        .append("address", "35th street")
-                        .append("age", 32);
-                dbCollection.insertOne (document);
+                        .append("_id", columns[0])
+                        .append("firstName",columns[1])
+                        .append("lastName",columns[2])
+                        .append("email",columns[3])
+                        .append("address", columns[4])
+                        .append("age", columns[5]);
+               dbCollection.insertOne (document);
 
             }
         } catch (Exception e) {
@@ -54,7 +49,5 @@ public class CustomersProducer {
             System.err.println(e.getClass().getName()+": "+e.getMessage());
             System.exit(0);
         }
-
-
     }
 }
