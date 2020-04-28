@@ -6,7 +6,7 @@ import kafka.streams.interactive.query.bean.ProductDTO;
 import kafka.streams.interactive.query.dao.InventoryRepository;
 import kafka.streams.interactive.query.entity.ProductEntity;
 import org.mddarr.products.Product;
-import org.mddarr.products.ProductAvro;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

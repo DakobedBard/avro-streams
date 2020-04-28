@@ -17,16 +17,17 @@
 package kafka.streams.interactive.query.producers;
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 //import kafka.streams.interactive.query.avro.PlayEvent;
 import kafka.streams.interactive.query.entity.ProductEntity;
 import kafka.streams.interactive.query.services.InventoryService;
-import org.mddarr.inventory.Product;
-import org.mddarr.inventory.PurchaseEvent;
+import org.mddarr.products.Product;
+import org.mddarr.products.PurchaseEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.mddarr.products.ProductAvro;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -35,20 +36,28 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.*;
 import java.util.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
 
 
 public class PurchaseEventProducer {
 
+	public static boolean interactive = true;
+
 	public static void main(String... args) throws Exception {
+		if (interactive) {
+			initProductsTopic();
+		} else {
+			initProductsDB();
+		}
+	}
+
+	private static void initProductsDB() {
 		final Map<String, String> serdeConfig = Collections.singletonMap(
 				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
 		// Set serializers and
 
-		final SpecificAvroSerializer<ProductAvro> productSerializer = new SpecificAvroSerializer<>();
+		final SpecificAvroSerializer<Product> productSerializer = new SpecificAvroSerializer<>();
 		productSerializer.configure(serdeConfig, false);
 
 		Map<String, Object> props = new HashMap<>();
@@ -61,8 +70,8 @@ public class PurchaseEventProducer {
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, productSerializer.getClass());
 
-		DefaultKafkaProducerFactory<Long, ProductAvro> pf1 = new DefaultKafkaProducerFactory<>(props);
-		KafkaTemplate<Long, ProductAvro> template1 = new KafkaTemplate<>(pf1, true);
+		DefaultKafkaProducerFactory<Long, Product> pf1 = new DefaultKafkaProducerFactory<>(props);
+		KafkaTemplate<Long, Product> template1 = new KafkaTemplate<>(pf1, true);
 		template1.setDefaultTopic(InventoryService.PRODUCTS_TOPIC);
 
 		Statement stmt = null;
@@ -83,7 +92,7 @@ public class PurchaseEventProducer {
 				String sql = String.format("INSERT INTO product_entity (\"id\",\"brand\",\"name\",\"price\") "
 						+ "VALUES ('%s', '%s', '%s', %d );",uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2]));
 				stmt.executeUpdate(sql);
-				template1.sendDefault(new ProductAvro(uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2])));
+				template1.sendDefault(new Product(uuid.toString(), columns[0], columns[1], Long.parseLong(columns[2])));
 				System.out.println(columns[0]);
 			}
 		} catch (Exception e) {
@@ -91,37 +100,93 @@ public class PurchaseEventProducer {
 			System.err.println(e.getClass().getName()+": "+e.getMessage());
 			System.exit(0);
 		}
+	}
+	private static void initProductsTopic() throws InterruptedException {
+		final Map<String, String> serdeConfig = Collections.singletonMap(
+				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
+		// Set serializers and
+		final SpecificAvroSerializer<PurchaseEvent> purchaseEventSerializer = new SpecificAvroSerializer<>();
+		purchaseEventSerializer.configure(serdeConfig, false);
+		final SpecificAvroSerializer<Product> productSerializer = new SpecificAvroSerializer<>();
+		productSerializer.configure(serdeConfig, false);
 
-		System.out.println("Opened database successfully");
 
+		Statement stmt = null;
+		Connection c = null;
+		String row;
+		String[] columns;
+		UUID uuid;
+
+		Map<String, Object> props = new HashMap<>();
+		props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+		props.put(ProducerConfig.RETRIES_CONFIG, 0);
+		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+		props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, purchaseEventSerializer.getClass());
+
+		Map<String, Object> props1 = new HashMap<>(props);
+		props1.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
+		props1.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, productSerializer.getClass());
+
+		DefaultKafkaProducerFactory<String, Product> pf1 = new DefaultKafkaProducerFactory<>(props1);
+
+		KafkaTemplate<String, Product> template1 = new KafkaTemplate<>(pf1, true);
+		template1.setDefaultTopic(InventoryService.PRODUCT_FEED);
+		ArrayList<Product> products = new ArrayList<>();
+
+		try (Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5433/productdb",
+				"postgres", "postgres");
+			 PreparedStatement pst = con.prepareStatement("SELECT * FROM product_entity");
+			 ResultSet rs = pst.executeQuery()) {
+
+			while (rs.next()) {
+				System.out.println("what");
+				products.add(new Product (rs.getString(1), rs.getString(2), rs.getString(3), rs.getLong(4)));
+			}
+
+		} catch (SQLException e) {
+			System.err.println(e.getClass().getName()+": "+e.getMessage());
+		}
+
+
+		DefaultKafkaProducerFactory<String, PurchaseEvent> pf = new DefaultKafkaProducerFactory<>(props);
+		KafkaTemplate<String, PurchaseEvent> template = new KafkaTemplate<>(pf, true);
+
+		template.setDefaultTopic(InventoryService.PURCHASE_EVENTS);
+
+		final long purchase_quantity = 3;
+		final Random random = new Random();
+
+		// send a play event every 100 milliseconds
+		while (true) {
+			final Product product = products.get(random.nextInt(products.size()));
+			System.out.println("Writing purchase event for product " + product.getName() + " to input topic " +
+					InventoryService.PURCHASE_EVENTS);
+			template.sendDefault("uk", new PurchaseEvent(1L, product.getId(), purchase_quantity));
+
+			Thread.sleep(100L);
+		}
 	}
 }
-//}
-//
-//
-//		final Map<String, String> serdeConfig = Collections.singletonMap(
-//				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
-//		// Set serializers and
-//		final SpecificAvroSerializer<PurchaseEvent> purchaseEventSerializer = new SpecificAvroSerializer<>();
-//		purchaseEventSerializer.configure(serdeConfig, false);
-//		final SpecificAvroSerializer<Product> productSerializer = new SpecificAvroSerializer<>();
-//		productSerializer.configure(serdeConfig, false);
-//
-//		final List<Product> products = Arrays.asList(new Product(1L,
+
+//		final List<Product> products = Arrays.asList(new Product("a",
 //						"Fresh Fruit For Rotting Vegetables",
-//						"Stpid",
-//                        (long) 15.4),
-//				new Product(2L,
-//                        "NikeF",
-//                        "Jo X10",
-//                        (long) 100.4),
-//				new Product(3L,
-//						"AddiddDFDFas",
-//						"tar",
+//						"Dead Kennedys",
+//						(long) 15.4),
+//				new Product("b",
+//						"Nike",
+//						"Jordan X10",
+//						(long) 100.4),
+//				new Product("c",
+//						"Addidas",
+//						"All Star",
 //						450L),
-//				new Product(4L,
-//						"PumaJdf",
-//						"ShfeDs",
+//				new Product("d",
+//						"Puma",
+//						"Shoes",
 //						240L)
 //		);
 //
@@ -132,25 +197,25 @@ public class PurchaseEventProducer {
 //		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
 //		props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
 //		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-//		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+//		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
 //		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, purchaseEventSerializer.getClass());
-//
+
 //		Map<String, Object> props1 = new HashMap<>(props);
-//		props1.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
+//		props1.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
 //		props1.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, productSerializer.getClass());
 //
-//		DefaultKafkaProducerFactory<Long, Product> pf1 = new DefaultKafkaProducerFactory<>(props1);
-//		KafkaTemplate<Long, Product> template1 = new KafkaTemplate<>(pf1, true);
+//		DefaultKafkaProducerFactory<String, Product> pf1 = new DefaultKafkaProducerFactory<>(props1);
+//		KafkaTemplate<String, Product> template1 = new KafkaTemplate<>(pf1, true);
 //		template1.setDefaultTopic(InventoryService.PRODUCT_FEED);
-//
-//        products.forEach(product -> {
+//		products.forEach(product -> {
 //			System.out.println("Writing product information for '" + product.getName() + "' to input topic " +
 //					InventoryService.PRODUCT_FEED);
-//			template1.sendDefault(product.getProductId(), product);
+//			template1.sendDefault(product.getId(), product);
 //		});
 //
 //		DefaultKafkaProducerFactory<String, PurchaseEvent> pf = new DefaultKafkaProducerFactory<>(props);
 //		KafkaTemplate<String, PurchaseEvent> template = new KafkaTemplate<>(pf, true);
+//
 //		template.setDefaultTopic(InventoryService.PURCHASE_EVENTS);
 //
 //		final long purchase_quantity = 3;
@@ -161,10 +226,9 @@ public class PurchaseEventProducer {
 //			final Product product = products.get(random.nextInt(products.size()));
 //			System.out.println("Writing purchase event for product " + product.getName() + " to input topic " +
 //					InventoryService.PURCHASE_EVENTS);
-//			template.sendDefault("uk", new PurchaseEvent(1L, product.getProductId(), purchase_quantity));
+//			template.sendDefault("uk", new PurchaseEvent(1L, product.getId(), purchase_quantity));
 //
 //			Thread.sleep(100L);
 //		}
-////		}
-//	}
-//}
+
+

@@ -1,9 +1,10 @@
-[{"namespace": "org.mddarr.products",
+{"namespace": "org.mddarr.products",
  "type": "record",
  "name": "Product",
  "fields": [
-     {"name": "id",     "type": "long"},
+     {"name": "id","type": "string"},
+     {"name": "brand", "type": "string"},
      {"name": "name",   "type": "string"},
-     {"name": "genre",  "type": "string"}
+     {"name": "price",  "type": "long"}
  ]
-}]
+}

@@ -1,9 +1,9 @@
-{"namespace": "org.mddarr.inventory",
+{"namespace": "org.mddarr.products",
  "type": "record",
  "name": "PurchaseEvent",
  "fields": [
      {"name": "customer_id",   "type": "long"},
-     {"name": "product_id",   "type": "long"},
+     {"name": "product_id",   "type": "string"},
      {"name": "quantity", "type": "long"}
  ]
 }

@@ -11,7 +11,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.state.HostInfo;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.mddarr.inventory.Product;
+import org.mddarr.products.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,13 +78,13 @@ public class InventoryController {
         value.forEach(productPurchaseCount -> {
 
             HostInfo hostInfo = interactiveQueryService.getHostInfo(InventoryService.ALL_PRODUCTS,
-                    productPurchaseCount.getProductId(), new LongSerializer());
+                    productPurchaseCount.getProductId(), new StringSerializer());
 
             if (interactiveQueryService.getCurrentHostInfo().equals(hostInfo)) {
                 logger.info("Product info request served from same host: " + hostInfo);
 
-                final ReadOnlyKeyValueStore<Long, Product> productStore =
-                        interactiveQueryService.getQueryableStore(InventoryService.ALL_PRODUCTS, QueryableStoreTypes.<Long, Product>keyValueStore());
+                final ReadOnlyKeyValueStore<String, Product> productStore =
+                        interactiveQueryService.getQueryableStore(InventoryService.ALL_PRODUCTS, QueryableStoreTypes.<String, Product>keyValueStore());
 
                 final Product product = productStore.get(productPurchaseCount.getProductId());
                 results.add(new ProductPurchaseCountBean(product.getBrand(),product.getName(), productPurchaseCount.getCount()));

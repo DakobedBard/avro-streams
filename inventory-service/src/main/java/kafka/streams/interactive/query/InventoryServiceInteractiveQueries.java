@@ -18,8 +18,6 @@ package kafka.streams.interactive.query;import kafka.streams.interactive.query.e
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
@@ -30,16 +28,11 @@ public class InventoryServiceInteractiveQueries {
 
 	private final Log log = LogFactory.getLog(getClass());
 
-
 	@Autowired
 	private InteractiveQueryService interactiveQueryService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(InventoryServiceInteractiveQueries.class, args);
-	}
-
-	public static class KStreamMusicSampleApplication {
-
 	}
 
 }
