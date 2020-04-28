@@ -42,7 +42,7 @@ import java.util.*;
 
 public class PurchaseEventProducer {
 
-	public static boolean interactive = true;
+	public static boolean interactive = false;
 
 	public static void main(String... args) throws Exception {
 		if (interactive) {
@@ -55,7 +55,6 @@ public class PurchaseEventProducer {
 	private static void initProductsDB() {
 		final Map<String, String> serdeConfig = Collections.singletonMap(
 				AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
-		// Set serializers and
 
 		final SpecificAvroSerializer<Product> productSerializer = new SpecificAvroSerializer<>();
 		productSerializer.configure(serdeConfig, false);
